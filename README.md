@@ -1,18 +1,35 @@
-# Mitosis
+# Automata
 
-A customizable and interactive cellular automata application that generates evolving patterns based on configurable rules and boundary conditions. Experiment with nature-inspired and mathematical concepts through real-time adjustments and animations.
+A customizable and interactive cellular automaton explorer that lets you experiment with one-dimensional reversible automata, visualizing how simple rules can create complex patterns. Watch as mathematical principles come to life through evolving patterns based on configurable rules and boundary conditions.
+
+## How It Works
+
+Each cell in the automaton has a binary state (on/off). At each time step, a cell's next state is determined by its current state and its neighbors' states, following a specific rule (0-255). The pattern grows downward, showing the evolution of states over time. In reversible mode, the previous state is considered, making patterns time-reversible and creating fascinating emergent behaviors.
 
 ## Features
 
-- **Interactive Controls**: Adjust grid size, rule number, mutation probability, and boundary conditions.
-- **Animation**: Start, stop, and control the speed of pattern evolution.
-- **Customizable Display**: Choose color palettes and toggle reversible or random initial states.
-- **Static Grid Manipulation**: Transform the grid without losing the animation history.
-- **Export**: Download the current state as a PNG image.
-- **Responsive Design**: Works seamlessly on all screen sizes.
+- **Rule Configuration**: Adjust grid size and rule numbers (0-255)
+- **Reversible Mode**: Toggle time-reversible patterns for unique evolutionary behaviors
+- **Animation Controls**: Start, stop, and control animation speed and direction
+- **Export Capability**: Download patterns as PNG images
+- **Visual Customization**: Choose from multiple color palettes
+- **Mutation System**: Add random mutations to explore chaos theory
+- **Responsive Design**: Works seamlessly on all screen sizes
+- **Interactive Controls**: Manipulate boundary conditions in real-time
+- **Static Grid Manipulation**: Transform the grid while preserving animation history
 
-## Usage
+## Mathematical Background
 
-1. Clone the repository:
-   ```bash
-   git clone <repository-url>
+The automaton uses 8 possible state combinations (2³) for 3 binary cells, resulting in 256 possible rules (2⁸). The reversible mode adds the previous state to make patterns time-reversible, creating fascinating emergent behaviors. This implementation explores fundamental concepts in cellular automata and discrete mathematics.
+
+## Installation
+
+```bash
+git clone https://github.com/sam-schorb/automata
+cd automata
+npm install
+npm run dev
+
+## Inspiration
+
+Based on the concepts explored in [1D Reversible Automata](https://richiejp.com/1d-reversible-automata), this interactive implementation allows you to explore these mathematical concepts in real-time.

@@ -7,6 +7,8 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { CellularAutomata } from '@/components/CellularAutomata';
+import InfoModal from '@/components/InfoModal';
+import { CircleHelp } from 'lucide-react';
 
 /**
  * The `Page` component provides a user interface for configuring and viewing the CellularAutomata component.
@@ -33,6 +35,8 @@ export default function Page() {
 
   // Reference to track if screen is large enough to adjust aspect ratio.
   const [isLargeScreen, setIsLargeScreen] = useState(true);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
 
   // Animation and reset states.
   const [isAnimating, setIsAnimating] = useState(false);
@@ -40,6 +44,14 @@ export default function Page() {
 
   // A reference to the container that holds the CellularAutomata for download operations.
   const automataRef = useRef(null);
+
+  // Auto-open modal with slight delay
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsModalOpen(true);
+    }, 500);
+    return () => clearTimeout(timer);
+  }, []);
 
   // Check screen size for responsive layout.
   useEffect(() => {
@@ -165,10 +177,11 @@ export default function Page() {
     { key: 'randomInitial', label: 'Random Initial' }
   ];
 
+
   return (
     <div className="w-screen h-screen overflow-auto bg-zinc-950 dark">
       <div className="mx-auto h-full w-full max-w-screen-2xl flex flex-col lg:flex-row">
-        {/* Main display area for the automaton */}
+        {/* Main display area */}
         <div className="flex-grow h-screen lg:h-full min-w-0 order-1 lg:order-2">
           <div ref={automataRef} className="relative h-full">
             <CellularAutomata
@@ -188,7 +201,7 @@ export default function Page() {
             <Card className="lg:border bg-zinc-900 border-zinc-800">
               <CardContent className="pt-6">
                 <div className="space-y-6">
-                  {/* Sliders for numeric configuration */}
+                  {/* Sliders */}
                   {sliderConfigs.map(({ label, key, min, max, step, format }) => (
                     <div key={key} className="space-y-2">
                       <Label className="text-zinc-200">{label}: {format(config[key])}</Label>
@@ -203,7 +216,7 @@ export default function Page() {
                     </div>
                   ))}
 
-                  {/* Toggles for boolean configuration */}
+                  {/* Toggles */}
                   {booleanConfigs.map(({ key, label }) => (
                     <div key={key} className="flex items-center space-x-2">
                       <Switch
@@ -227,8 +240,14 @@ export default function Page() {
                     <Label htmlFor="animate" className="text-zinc-200">Animate</Label>
                   </div>
 
-                  {/* Action buttons for Reset and Download */}
+                  {/* Action buttons - Reordered */}
                   <div className="flex space-x-2">
+                    <Button 
+                      className="flex-1"
+                      onClick={handleDownload}
+                    >
+                      Download
+                    </Button>
                     <Button 
                       variant="outline" 
                       className="flex-1 border-zinc-700 hover:bg-zinc-800"
@@ -236,11 +255,12 @@ export default function Page() {
                     >
                       Reset
                     </Button>
-                    <Button 
-                      className="flex-1"
-                      onClick={handleDownload}
+                    <Button
+                      variant="outline"
+                      className="w-12 px-0 border-zinc-700 hover:bg-zinc-800 transition-all duration-300 hover:scale-105"
+                      onClick={() => setIsModalOpen(true)}
                     >
-                      Download
+                      <CircleHelp className="h-5 w-5" />
                     </Button>
                   </div>
                 </div>
@@ -249,6 +269,9 @@ export default function Page() {
           </div>
         </div>
       </div>
+
+      {/* Info Modal with state */}
+      <InfoModal open={isModalOpen} onOpenChange={setIsModalOpen} />
     </div>
   );
 }
