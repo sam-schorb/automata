@@ -97,8 +97,8 @@ export default function Page() {
 
       const img = new Image();
       img.onload = () => {
-        // White background before drawing SVG to ensure no transparency issues.
-        ctx.fillStyle = 'white';
+        // Dark background before drawing SVG
+        ctx.fillStyle = 'rgb(9, 9, 11)';  // Changed to match dark background
         ctx.fillRect(0, 0, canvas.width, canvas.height);
         ctx.drawImage(img, 0, 0);
 
@@ -166,7 +166,7 @@ export default function Page() {
   ];
 
   return (
-    <div className="w-screen h-screen overflow-auto">
+    <div className="w-screen h-screen overflow-auto bg-zinc-950 dark">
       <div className="mx-auto h-full w-full max-w-screen-2xl flex flex-col lg:flex-row">
         {/* Main display area for the automaton */}
         <div className="flex-grow h-screen lg:h-full min-w-0 order-1 lg:order-2">
@@ -185,19 +185,20 @@ export default function Page() {
         {/* Control panel */}
         <div className="w-full lg:w-1/4 lg:min-w-[28%] lg:flex lg:items-center order-2 lg:order-1">
           <div className="w-full p-4">
-            <Card className="lg:border">
+            <Card className="lg:border bg-zinc-900 border-zinc-800">
               <CardContent className="pt-6">
                 <div className="space-y-6">
                   {/* Sliders for numeric configuration */}
                   {sliderConfigs.map(({ label, key, min, max, step, format }) => (
                     <div key={key} className="space-y-2">
-                      <Label>{label}: {format(config[key])}</Label>
+                      <Label className="text-zinc-200">{label}: {format(config[key])}</Label>
                       <Slider
                         min={min}
                         max={max}
                         step={step}
                         value={[config[key]]}
                         onValueChange={([value]) => handleConfigChange(key, value)}
+                        className="dark"
                       />
                     </div>
                   ))}
@@ -209,8 +210,9 @@ export default function Page() {
                         id={key}
                         checked={config[key]}
                         onCheckedChange={value => handleConfigChange(key, value)}
+                        className="dark"
                       />
-                      <Label htmlFor={key}>{label}</Label>
+                      <Label htmlFor={key} className="text-zinc-200">{label}</Label>
                     </div>
                   ))}
 
@@ -220,15 +222,16 @@ export default function Page() {
                       id="animate"
                       checked={isAnimating}
                       onCheckedChange={setIsAnimating}
+                      className="dark"
                     />
-                    <Label htmlFor="animate">Animate</Label>
+                    <Label htmlFor="animate" className="text-zinc-200">Animate</Label>
                   </div>
 
                   {/* Action buttons for Reset and Download */}
                   <div className="flex space-x-2">
                     <Button 
                       variant="outline" 
-                      className="flex-1"
+                      className="flex-1 border-zinc-700 hover:bg-zinc-800"
                       onClick={handleReset}
                     >
                       Reset
