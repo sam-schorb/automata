@@ -1,12 +1,6 @@
-"use client";
+'use client';
 
-import React, {
-  useEffect,
-  useRef,
-  useState,
-  useMemo,
-  useCallback
-} from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 /**
  * Supported boundary conditions for the cellular automaton's neighbor retrieval.
@@ -17,7 +11,7 @@ const BOUNDARY_MODES = [
   'fixed1',
   'reflect',
   'randomBoundary',
-  'gradientBoundary'
+  'gradientBoundary',
 ];
 
 /**
@@ -32,7 +26,7 @@ const COLOR_PALETTES = [
   { on: '#f00', off: '#0f0' },
   { on: '#333', off: '#ccc' },
   { on: '#ffff00', off: '#ff6600' },
-  { on: '#0033cc', off: '#ccffff' }
+  { on: '#0033cc', off: '#ccffff' },
 ];
 
 /**
@@ -56,7 +50,7 @@ const COLOR_PALETTES = [
 /**
  * The `CellularAutomata` component renders and manages the state of a 1D cellular automaton displayed as stacked rows.
  * It supports animation, reversible rules, mutation, and various boundary conditions.
- * 
+ *
  * This component:
  * - Initializes a grid (2D array) representing the history of the automaton.
  * - Renders the grid as an SVG, with cells as rectangles.
@@ -82,13 +76,16 @@ export const CellularAutomata = ({
   playSpeed = 0,
   isAnimating = false,
   shouldReset = false,
-  onConfigChange
+  onConfigChange,
 }) => {
   const containerRef = useRef(null);
   const animationRef = useRef(null);
   const scrollRef = useRef(0);
   const prevLineRef = useRef(null);
-  const lastEffectStateRef = useRef({ reversible: false, randomInitial: false });
+  const lastEffectStateRef = useRef({
+    reversible: false,
+    randomInitial: false,
+  });
 
   const [hasEverAnimated, setHasEverAnimated] = useState(false);
 
@@ -100,17 +97,36 @@ export const CellularAutomata = ({
     grid: [],
     totalLines: gridHeight,
     bufferedLines: [],
-    lastUpdate: Date.now()
+    lastUpdate: Date.now(),
   }));
 
   // Keep track of previous configuration to detect changes.
   const prevConfigRef = useRef({
-    gridSize, ruleNumber, reversible, mutationProbability, invertColors, randomInitial, boundaryIndex, colorIndex
+    gridSize,
+    ruleNumber,
+    reversible,
+    mutationProbability,
+    invertColors,
+    randomInitial,
+    boundaryIndex,
+    colorIndex,
   });
-  const currentConfig = { gridSize, ruleNumber, reversible, mutationProbability, invertColors, randomInitial, boundaryIndex, colorIndex };
+  const currentConfig = {
+    gridSize,
+    ruleNumber,
+    reversible,
+    mutationProbability,
+    invertColors,
+    randomInitial,
+    boundaryIndex,
+    colorIndex,
+  };
 
   const configChanged = useMemo(
-    () => Object.keys(currentConfig).some(k => currentConfig[k] !== prevConfigRef.current[k]),
+    () =>
+      Object.keys(currentConfig).some(
+        k => currentConfig[k] !== prevConfigRef.current[k]
+      ),
     [currentConfig]
   );
 
@@ -121,38 +137,49 @@ export const CellularAutomata = ({
   /**
    * Randomly mutate the rule with given probability.
    */
-  const getMutatedRule = useCallback((baseRule) => {
-    if (mutationProbability > 0 && Math.random() < mutationProbability) {
-      return Math.floor(Math.random() * 256);
-    }
-    return baseRule;
-  }, [mutationProbability]);
+  const getMutatedRule = useCallback(
+    baseRule => {
+      if (mutationProbability > 0 && Math.random() < mutationProbability) {
+        return Math.floor(Math.random() * 256);
+      }
+      return baseRule;
+    },
+    [mutationProbability]
+  );
 
   /**
    * Retrieve neighbor cells with given boundary conditions.
    */
-  const getNeighbor = useCallback((row, pos, width) => {
-    const mode = BOUNDARY_MODES[boundaryIndex];
-    if (mode === 'wrap') return row[(pos + width) % width];
-    if (mode === 'fixed0') return pos < 0 || pos >= width ? 0 : row[pos];
-    if (mode === 'fixed1') return pos < 0 || pos >= width ? 1 : row[pos];
-    if (mode === 'reflect') {
-      let p = pos;
-      if (p < 0) p = -p;
-      if (p >= width) p = 2 * (width - 1) - p;
-      return row[Math.max(0, Math.min(p, width - 1))];
-    }
-    if (mode === 'randomBoundary') return pos < 0 || pos >= width ? (Math.random() < 0.5 ? 1 : 0) : row[pos];
-    if (mode === 'gradientBoundary') {
-      if (pos < 0) return 0;
-      if (pos >= width) return 1;
-      return row[pos];
-    }
-    return row[(pos + width) % width];
-  }, [boundaryIndex]);
+  const getNeighbor = useCallback(
+    (row, pos, width) => {
+      const mode = BOUNDARY_MODES[boundaryIndex];
+      if (mode === 'wrap') return row[(pos + width) % width];
+      if (mode === 'fixed0') return pos < 0 || pos >= width ? 0 : row[pos];
+      if (mode === 'fixed1') return pos < 0 || pos >= width ? 1 : row[pos];
+      if (mode === 'reflect') {
+        let p = pos;
+        if (p < 0) p = -p;
+        if (p >= width) p = 2 * (width - 1) - p;
+        return row[Math.max(0, Math.min(p, width - 1))];
+      }
+      if (mode === 'randomBoundary')
+        return pos < 0 || pos >= width
+          ? Math.random() < 0.5
+            ? 1
+            : 0
+          : row[pos];
+      if (mode === 'gradientBoundary') {
+        if (pos < 0) return 0;
+        if (pos >= width) return 1;
+        return row[pos];
+      }
+      return row[(pos + width) % width];
+    },
+    [boundaryIndex]
+  );
 
   /**
-   * Compute the next line of the automaton given the current row, 
+   * Compute the next line of the automaton given the current row,
    * and optionally the previous row (for reversible mode).
    */
   const computeNextLineWithRule = useCallback(
@@ -188,7 +215,9 @@ export const CellularAutomata = ({
     if (useRandom) {
       return new Array(width).fill(0).map(() => (Math.random() < 0.5 ? 1 : 0));
     }
-    return new Array(width).fill(0).map((_, i) => (i === Math.floor(width / 2) ? 1 : 0));
+    return new Array(width)
+      .fill(0)
+      .map((_, i) => (i === Math.floor(width / 2) ? 1 : 0));
   }, []);
 
   /**
@@ -196,27 +225,34 @@ export const CellularAutomata = ({
    * This does not revert to a pre-animation state, but rather
    * recomputes subsequent lines using the current top line as a starting point.
    */
-  const applyEffectToStaticGrid = useCallback((currentGrid, applyReversible, applyRandom) => {
-    if (currentGrid.length === 0) return currentGrid;
+  const applyEffectToStaticGrid = useCallback(
+    (currentGrid, applyReversible, applyRandom) => {
+      if (currentGrid.length === 0) return currentGrid;
 
-    const newGrid = [];
-    let prevRow = null;
+      const newGrid = [];
+      let prevRow = null;
 
-    // Keep the first row as-is to avoid losing the current pattern.
-    newGrid.push([...currentGrid[0]]);
+      // Keep the first row as-is to avoid losing the current pattern.
+      newGrid.push([...currentGrid[0]]);
 
-    // Recompute each subsequent line based on the new parameters.
-    for (let y = 1; y < currentGrid.length; y++) {
-      const currentRow = newGrid[y - 1];
-      const nextRow = computeNextLineWithRule(currentRow, applyReversible ? prevRow : null, applyReversible);
-      newGrid.push(nextRow);
-      if (applyReversible) {
-        prevRow = currentRow;
+      // Recompute each subsequent line based on the new parameters.
+      for (let y = 1; y < currentGrid.length; y++) {
+        const currentRow = newGrid[y - 1];
+        const nextRow = computeNextLineWithRule(
+          currentRow,
+          applyReversible ? prevRow : null,
+          applyReversible
+        );
+        newGrid.push(nextRow);
+        if (applyReversible) {
+          prevRow = currentRow;
+        }
       }
-    }
 
-    return newGrid;
-  }, [computeNextLineWithRule]);
+      return newGrid;
+    },
+    [computeNextLineWithRule]
+  );
 
   /**
    * Generate the initial grid from scratch using the initial parameters.
@@ -238,34 +274,49 @@ export const CellularAutomata = ({
     }
 
     return grid;
-  }, [gridWidth, gridHeight, randomInitial, reversible, getInitialRow, computeNextLineWithRule]);
+  }, [
+    gridWidth,
+    gridHeight,
+    randomInitial,
+    reversible,
+    getInitialRow,
+    computeNextLineWithRule,
+  ]);
 
   /**
    * Compute the next line during animation, updating prevLineRef if reversible.
    */
-  const computeNextLine = useCallback((prevLine) => {
-    const nextLine = computeNextLineWithRule(
-      prevLine,
-      reversible ? prevLineRef.current : null,
-      reversible
-    );
-    if (reversible) {
-      prevLineRef.current = prevLine;
-    }
-    return nextLine;
-  }, [reversible, computeNextLineWithRule]);
+  const computeNextLine = useCallback(
+    prevLine => {
+      const nextLine = computeNextLineWithRule(
+        prevLine,
+        reversible ? prevLineRef.current : null,
+        reversible
+      );
+      if (reversible) {
+        prevLineRef.current = prevLine;
+      }
+      return nextLine;
+    },
+    [reversible, computeNextLineWithRule]
+  );
 
   // Detect changes in reversible or randomInitial after animation has occurred
   // and apply them to the current static grid.
   useEffect(() => {
     if (!isAnimating && !shouldReset && state.grid.length > 0) {
-      const effectsChanged = reversible !== lastEffectStateRef.current.reversible ||
-                             randomInitial !== lastEffectStateRef.current.randomInitial;
+      const effectsChanged =
+        reversible !== lastEffectStateRef.current.reversible ||
+        randomInitial !== lastEffectStateRef.current.randomInitial;
 
       if (effectsChanged) {
         if (hasEverAnimated) {
           // Transform the current grid in place
-          const newGrid = applyEffectToStaticGrid(state.grid, reversible, randomInitial);
+          const newGrid = applyEffectToStaticGrid(
+            state.grid,
+            reversible,
+            randomInitial
+          );
           setState(current => ({ ...current, grid: newGrid }));
         } else {
           // If never animated, regenerate initial grid
@@ -277,8 +328,14 @@ export const CellularAutomata = ({
       }
     }
   }, [
-    reversible, randomInitial, isAnimating, shouldReset, hasEverAnimated,
-    applyEffectToStaticGrid, generateInitialGrid, state.grid
+    reversible,
+    randomInitial,
+    isAnimating,
+    shouldReset,
+    hasEverAnimated,
+    applyEffectToStaticGrid,
+    generateInitialGrid,
+    state.grid,
   ]);
 
   // Handle reset events by generating a fresh initial grid.
@@ -292,7 +349,7 @@ export const CellularAutomata = ({
         grid: newGrid,
         totalLines: gridHeight,
         bufferedLines: [],
-        lastUpdate: Date.now()
+        lastUpdate: Date.now(),
       });
 
       lastEffectStateRef.current = { reversible, randomInitial };
@@ -306,7 +363,7 @@ export const CellularAutomata = ({
       grid: initialGrid,
       totalLines: gridHeight,
       bufferedLines: [],
-      lastUpdate: Date.now()
+      lastUpdate: Date.now(),
     });
   }, []); // run once on mount
 
@@ -319,10 +376,16 @@ export const CellularAutomata = ({
         grid: newGrid,
         totalLines: gridHeight,
         bufferedLines: [],
-        lastUpdate: Date.now()
+        lastUpdate: Date.now(),
       }));
     }
-  }, [isAnimating, configChanged, shouldReset, generateInitialGrid, gridHeight]);
+  }, [
+    isAnimating,
+    configChanged,
+    shouldReset,
+    generateInitialGrid,
+    gridHeight,
+  ]);
 
   // Animation logic: periodically compute and add a new line at the bottom,
   // removing the top line (scrolling effect).
@@ -331,9 +394,9 @@ export const CellularAutomata = ({
 
     setHasEverAnimated(true);
     let lastTime = performance.now();
-    const frameInterval = playSpeed > 0 ? (1000 / playSpeed) : 1000;
+    const frameInterval = playSpeed > 0 ? 1000 / playSpeed : 1000;
 
-    const animate = (currentTime) => {
+    const animate = currentTime => {
       if (!isAnimating) return;
       const deltaTime = currentTime - lastTime;
 
@@ -344,13 +407,15 @@ export const CellularAutomata = ({
           const nextLine = computeNextLine(lastLine);
 
           const newGrid = [...prevState.grid.slice(1), nextLine];
-          const newBufferedLines = [...prevState.bufferedLines, nextLine].slice(-gridHeight * 2);
+          const newBufferedLines = [...prevState.bufferedLines, nextLine].slice(
+            -gridHeight * 2
+          );
 
           return {
             grid: newGrid,
             totalLines: prevState.totalLines + 1,
             bufferedLines: newBufferedLines,
-            lastUpdate: Date.now()
+            lastUpdate: Date.now(),
           };
         });
 
@@ -394,7 +459,9 @@ export const CellularAutomata = ({
       const svgElement = document.querySelector('#cellular-automata-svg');
       if (svgElement) {
         const svgData = new XMLSerializer().serializeToString(svgElement);
-        const svgBlob = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' });
+        const svgBlob = new Blob([svgData], {
+          type: 'image/svg+xml;charset=utf-8',
+        });
         const url = URL.createObjectURL(svgBlob);
         onRenderComplete(url);
         URL.revokeObjectURL(url);
@@ -407,19 +474,22 @@ export const CellularAutomata = ({
   const onColor = invertColors ? palette.off : palette.on;
   const offColor = invertColors ? palette.on : palette.off;
 
+  // Calculate the exact pattern width
+  const exactViewBoxWidth = gridWidth * cellWidth;
+
   return (
     <div ref={containerRef} className="w-full h-full">
       <svg
         id="cellular-automata-svg"
         width="100%"
         height="100%"
-        viewBox={`0 0 ${viewBoxWidth} 1`}
+        viewBox={`0 0 ${exactViewBoxWidth} 1`}
         preserveAspectRatio="xMidYMid meet"
         style={{ display: 'block' }}
         shapeRendering="crispEdges"
       >
         {/* Background rectangle for "off" cells */}
-        <rect width={viewBoxWidth} height="1" fill={offColor} />
+        <rect width={exactViewBoxWidth} height="1" fill={offColor} />
         {/* Paths for "on" cells */}
         <path d={pathData} fill={onColor} />
       </svg>
